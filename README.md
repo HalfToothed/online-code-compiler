@@ -8,7 +8,7 @@ The Online Code Compiler is a web-based application that allows users to write, 
 
 - **Multilingual Support:** Compile and execute code in various programming languages.
 - **Real-time Execution:** Get immediate feedback on code output.
-- **Syntax Highlighting:** Enjoy enhanced code readability with syntax highlighting.
+- **Syntax Highlighting:** Enjoy enhanced code readability with syntax highlighting*.
 - **Error Reporting:** Receive detailed error messages to debug code efficiently.
 - **Responsive Design:** Access the compiler on any device with a user-friendly interface.
 
@@ -16,4 +16,4 @@ The Online Code Compiler is a web-based application that allows users to write, 
 
 - **Frontend:** React
 - **Backend:** Judge0
-- **Styling:** Aceternity UI
+- **Styling:** Tailwind & Schadn UI
