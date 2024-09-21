@@ -1,8 +1,6 @@
-"use client"
-
 import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-
+import {LanguageType} from "@/lib/model"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,33 +16,43 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useEffect, useState } from "react"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
 
-export function Language() {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+
+interface LanguageProps {
+  onLanguageSelect: (language: LanguageType) => void;
+}
+
+export function Language({ onLanguageSelect }: LanguageProps) {
+  const [languages, setLanguages] = useState<LanguageType[]>([]);
+  const [open, setOpen] = useState(false)
+  const [id, setId] = useState<number>();
+
+  useEffect(() => {
+
+    fetch("https://judge0-ce.p.rapidapi.com/languages",
+    {
+      method : "GET",
+      headers : {
+        "x-rapidapi-key" : "9ee96fecb3msh42fb4188e79a396p120235jsn1e02e5b57bf9",
+        "x-rapidapi-host" : "judge0-ce.p.rapidapi.com"
+      }
+    })
+    .then((response) => response.json())
+    .then((data) => setLanguages(data))
+    .then((da) => console.log(da))
+    .catch((err) => {
+      console.log(err.message);
+   });
+   
+  }, [])
+
+  const handleLanguageSelect = (language :LanguageType ) => {
+    setId(language.id);
+    setOpen(false);
+    onLanguageSelect(language); // Only call when a language is selected
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,34 +61,34 @@ export function Language() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[250px] justify-between"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+          {id
+            ? languages.find((language) => language.id === id)?.name
             : "Select Language..."}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[250px] p-0">
         <Command>
           <CommandInput placeholder="Search language..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {languages.map((language) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                  key={language.id}
+                  value={language.name}
+                  onSelect={() => {
+                    handleLanguageSelect(language)
                     setOpen(false)
                   }}
                 >
-                  {framework.label}
+                  {language.name}
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      id === language.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

@@ -2,6 +2,8 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Page } from './Page'
 import { Language } from './Language'
+import { useState } from 'react'
+import { LanguageType } from '@/lib/model'
 
 const user = {
   name: 'Tom Cook',
@@ -27,16 +29,15 @@ function classNames(...classes: string[]) {
 }
 
 export default function Layout() {
+
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageType | undefined>();
+
+  const handleLanguageChange = (language: LanguageType | undefined) => {
+    setSelectedLanguage(language);
+  };
+
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
       <div className="min-h-screen flex flex-col">
         <Disclosure as="nav" className="bg-gray-800">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -170,11 +171,12 @@ export default function Layout() {
 
         <header className="bg-black shadow">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <Language/>
+            <Language onLanguageSelect={handleLanguageChange} />
+            
           </div>
         </header>
         <main className="flex-1 p-4">
-          <div className="px-4 py-6 sm:px-6 lg:px-8"> <Page/></div>
+          <div className="px-4 py-6 sm:px-6 lg:px-8"> <Page selectedLanguage={selectedLanguage} /></div>
         </main>
       </div>
     </>

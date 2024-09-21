@@ -6,8 +6,13 @@ import {
 import { CodeEditor } from "./CodeEditor"
 import { Input } from "./Input"
 import { Output } from "./Output"
+import { LanguageType } from "@/lib/model";
 
-export function Page() {
+interface LanguageProps {
+  selectedLanguage: LanguageType | undefined; 
+}
+
+export function Page({ selectedLanguage }: LanguageProps) {
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -15,7 +20,7 @@ export function Page() {
     >
       <ResizablePanel defaultSize={60} className="h-screen">
         <div className="flex p-6">
-          <CodeEditor />
+          <CodeEditor language={selectedLanguage} />
         </div>
       </ResizablePanel>
       <ResizableHandle />
