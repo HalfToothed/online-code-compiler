@@ -19,7 +19,6 @@ import {
 import { useEffect, useState } from "react"
 
 
-
 interface LanguageProps {
   onLanguageSelect: (language: LanguageType) => void;
 }
@@ -29,19 +28,21 @@ export function Language({ onLanguageSelect }: LanguageProps) {
   const [open, setOpen] = useState(false)
   const [id, setId] = useState<number>();
 
+  const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
+  const apiHost = import.meta.env.VITE_RAPIDAPI_HOST;
+
   useEffect(() => {
 
     fetch("https://judge0-ce.p.rapidapi.com/languages",
     {
       method : "GET",
       headers : {
-        "x-rapidapi-key" : "9ee96fecb3msh42fb4188e79a396p120235jsn1e02e5b57bf9",
-        "x-rapidapi-host" : "judge0-ce.p.rapidapi.com"
+        "x-rapidapi-key" : apiKey,
+        "x-rapidapi-host" : apiHost
       }
     })
     .then((response) => response.json())
     .then((data) => setLanguages(data))
-    .then((da) => console.log(da))
     .catch((err) => {
       console.log(err.message);
    });

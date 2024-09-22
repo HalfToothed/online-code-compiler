@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Disclosure } from "@headlessui/react";
 import { Language } from "./Language";
 import { useState } from "react";
@@ -11,80 +12,87 @@ import { CodeEditor } from "./CodeEditor";
 import { Input } from "./Input";
 import { Output } from "./Output";
 
-
 export default function Layout() {
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageType | undefined>();
   const [code, setCode] = useState<string>("");
   const [input, setInput] = useState<string>("");
   const [output, setOutput] = useState<string>("");
 
+  const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
+  const apiHost = import.meta.env.VITE_RAPIDAPI_HOST;
+
   const handleLanguageChange = (language: LanguageType | undefined) => {
     setSelectedLanguage(language);
   };
 
-  const handleRun = async () => {
+  console.log("input:",input);
 
+  const handleRun = async () => {
     let output: string = "";
 
-    const url = "https://judge0-ce.p.rapidapi.com/submissions";
-    const options = {
+    const postUrl = "https://judge0-ce.p.rapidapi.com/submissions";
+    const postOptions = {
       method: "POST",
       headers: {
-        "x-rapidapi-key": "API-KEY",
-        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        "x-rapidapi-key": apiKey,
+        "x-rapidapi-host": apiHost,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         language_id: selectedLanguage?.id, // Ensure this is serialized as JSON
         source_code: code, // Code from the editor
-      })
+        stdin: input
+      }),
     };
 
-
     try {
-       const response = await fetch(url, options);
-       const result = await response.text();
-       
-       const parsedResult = JSON.parse(result);
+      const response = await fetch(postUrl, postOptions);
+      const result = await response.text();
 
-        const token = parsedResult.token;
-        console.log(token);
+      const token = JSON.parse(result).token;
 
-
-      const url1 =`https://judge0-ce.p.rapidapi.com/submissions/${token}`;
-      const options1 = {
-        method: 'GET',
+      const getUrl = `https://judge0-ce.p.rapidapi.com/submissions/${token}`;
+      const getOptions = {
+        method: "GET",
         headers: {
-          'x-rapidapi-key': 'API-KEY',
-          'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
-        }
+          "x-rapidapi-key": apiKey,
+          "x-rapidapi-host": apiHost,
+        },
       };
-      
-      try {
-        const response = await fetch(url1, options1);
-        const result = await response.text();
-        const parsedResult = JSON.parse(result);
-        if(parsedResult.status.id != 3){
-          output = parsedResult.compile_output;
-        }
-        else{
-          if(parsedResult.compile_output == "null"){
-            output = parsedResult.stdout;
-          }
-          else{
-            output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
-          }
-        }
-        
-        setOutput(output);
-      } catch (error) {
-        console.error(error);
+
+      let parsedResult = await fetchSubmissionResult(getUrl, getOptions);
+
+      while (parsedResult.status.id === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        parsedResult = await fetchSubmissionResult(getUrl, getOptions);
       }
-     
+
+    
+      if (parsedResult.status.id != 3) {
+        output = parsedResult.compile_output;
+      } else {
+        if (parsedResult.compile_output == null) {
+          output = parsedResult.stdout;
+        } else {
+          output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
+        }
+      }
+
+      console.log("####", output);
+
+      setOutput(output);
     } catch (error) {
       console.error(error);
     }
   };
+
+  const fetchSubmissionResult = async (url:string, options:any) => {
+    const submission = await fetch(url, options);
+    const submissionResult = await submission.text();
+    const parsedResult = JSON.parse(submissionResult);
+
+    return parsedResult;
+  }
 
   return (
     <>
@@ -98,9 +106,12 @@ export default function Layout() {
         <header className="bg-black shadow">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <Language onLanguageSelect={handleLanguageChange} />
-            <button onClick={handleRun} className="bg-green-500 text-white py-2 px-4 rounded">
-            Run
-          </button>
+            <button
+              onClick={handleRun}
+              className="bg-green-500 text-white py-2 px-4 rounded"
+            >
+              Run
+            </button>
           </div>
         </header>
         <main className="flex-1 p-4">
@@ -111,7 +122,11 @@ export default function Layout() {
             >
               <ResizablePanel defaultSize={60} className="h-screen">
                 <div className="flex p-6">
-                  <CodeEditor selectedLanguage={selectedLanguage} code={code} setCode={setCode}/>
+                  <CodeEditor
+                    selectedLanguage={selectedLanguage}
+                    code={code}
+                    setCode={setCode}
+                  />
                 </div>
               </ResizablePanel>
               <ResizableHandle />
