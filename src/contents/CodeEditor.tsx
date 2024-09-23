@@ -83,7 +83,6 @@ const getPlaceholder = (id: number | undefined) => {
 
 
   export function CodeEditor({ selectedLanguage, code, setCode }: CodeEditorProps) {
-
     useEffect(() => {
       // Set the placeholder when the language changes
       const placeholder = getPlaceholder(selectedLanguage?.id);

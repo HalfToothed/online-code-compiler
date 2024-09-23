@@ -15,7 +15,7 @@ import { Output } from "./Output";
 export default function Layout() {
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageType | undefined>();
   const [code, setCode] = useState<string>("");
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState<string | undefined>("");
   const [output, setOutput] = useState<string>("");
 
   const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
@@ -25,10 +25,13 @@ export default function Layout() {
     setSelectedLanguage(language);
   };
 
-  console.log("input:",input);
-
   const handleRun = async () => {
     let output: string = "";
+
+    if(input == '')
+     setInput(undefined);
+
+    console.log("input",input);
 
     const postUrl = "https://judge0-ce.p.rapidapi.com/submissions";
     const postOptions = {
@@ -41,7 +44,7 @@ export default function Layout() {
       body: JSON.stringify({
         language_id: selectedLanguage?.id, // Ensure this is serialized as JSON
         source_code: code, // Code from the editor
-        stdin: input
+        stdin: input?.replace(/\s*\(.*?\)/, "").trim()
       }),
     };
 
@@ -62,23 +65,24 @@ export default function Layout() {
 
       let parsedResult = await fetchSubmissionResult(getUrl, getOptions);
 
-      while (parsedResult.status.id === 1) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+      while (parsedResult.status.id === 1 || parsedResult.status.id === 2) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         parsedResult = await fetchSubmissionResult(getUrl, getOptions);
       }
 
-    
-      if (parsedResult.status.id != 3) {
+      if(parsedResult.status.id === 11){
+        output = "Runtime Error" + `\n \n` + parsedResult.stderr;
+      }
+      else if (parsedResult.status.id != 3) {
         output = parsedResult.compile_output;
-      } else {
+      }
+      else {
         if (parsedResult.compile_output == null) {
           output = parsedResult.stdout;
         } else {
           output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
         }
       }
-
-      console.log("####", output);
 
       setOutput(output);
     } catch (error) {
