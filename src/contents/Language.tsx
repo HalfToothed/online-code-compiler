@@ -1,4 +1,3 @@
-import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import {LanguageType} from "@/lib/model"
 import { cn } from "@/lib/utils"

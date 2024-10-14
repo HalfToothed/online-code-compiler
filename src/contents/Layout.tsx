@@ -44,7 +44,7 @@ export default function Layout() {
       body: JSON.stringify({
         language_id: selectedLanguage?.id, // Ensure this is serialized as JSON
         source_code: code, // Code from the editor
-        stdin: input?.replace(/\s*\(.*?\)/, "").trim()
+        stdin: input
       }),
     };
 
