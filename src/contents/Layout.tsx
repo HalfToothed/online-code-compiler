@@ -110,9 +110,14 @@ export default function Layout() {
             }
 
             setOutput(output);
-        } catch (error) {
+        } catch (error: unknown) {
             console.log(error);
-            toast.error(error.message);
+        
+            if (error instanceof Error) {
+                toast.error(error.message); // Now it's safe to access error.message
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
         }
     };
 
