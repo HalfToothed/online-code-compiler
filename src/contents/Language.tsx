@@ -30,23 +30,23 @@ export function Language({ onLanguageSelect }: LanguageProps) {
   const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
   const apiHost = import.meta.env.VITE_RAPIDAPI_HOST;
 
-  // useEffect(() => {
+  useEffect(() => {
 
-  //   fetch("https://judge0-ce.p.rapidapi.com/languages",
-  //   {
-  //     method : "GET",
-  //     headers : {
-  //       "x-rapidapi-key" : apiKey,
-  //       "x-rapidapi-host" : apiHost
-  //     }
-  //   })
-  //   .then((response) => response.json())
-  //   .then((data) => setLanguages(data))
-  //   .catch((err) => {
-  //     console.log(err.message);
-  //  });
+    fetch("https://judge0-ce.p.rapidapi.com/languages",
+    {
+      method : "GET",
+      headers : {
+        "x-rapidapi-key" : apiKey,
+        "x-rapidapi-host" : apiHost
+      }
+    })
+    .then((response) => response.json())
+    .then((data) => setLanguages(data))
+    .catch((err) => {
+      console.log(err.message);
+   });
    
-  // }, [])
+  }, [])
 
   const handleLanguageSelect = (language :LanguageType ) => {
     setId(language.id);
