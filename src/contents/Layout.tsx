@@ -12,12 +12,9 @@ import { CodeEditor } from "./CodeEditor";
 import { Input } from "./Input";
 import { Output } from "./Output";
 import toast, { Toaster } from "react-hot-toast";
-
-/*
-    Compile Time Error -> Yellow
-    Runtime Time Error -> Red
-    No Error -> Green
-*/
+import { useTheme } from "@/components/theme-provider";
+import { SunIcon } from "@/components/ui/sunIcon";
+import { MoonIcon } from "@/components/ui/moonIcon";
 
 export default function Layout() {
   const [selectedLanguage, setSelectedLanguage] = useState<
@@ -26,6 +23,15 @@ export default function Layout() {
   const [code, setCode] = useState<string>("");
   const [input, setInput] = useState<string | undefined>("");
   const [output, setOutput] = useState<string>("");
+
+  const { theme, setTheme } = useTheme();
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const toggleTheme = () => {
+    setIsAnimating(true);
+    setTheme(theme === "dark" ? "light" : "dark");
+    setTimeout(() => setIsAnimating(false), 100);
+  };
   const [color, setColor] = useState<string>("");
 
   const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
@@ -69,13 +75,11 @@ export default function Layout() {
         id: "running",
       });
       const response = await fetch(postUrl, postOptions);
-      // console.log(response);
       if (response.status === 429) {
         toast.dismiss("running");
         throw new Error("request limit exceed ");
       }
       const result = await response.text();
-      // console.log("res -> ", result)
 
       const token = JSON.parse(result).token;
 
@@ -89,10 +93,10 @@ export default function Layout() {
       };
 
       let parsedResult = await fetchSubmissionResult(getUrl, getOptions);
+
       while (parsedResult.status.id === 1 || parsedResult.status.id === 2) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         parsedResult = await fetchSubmissionResult(getUrl, getOptions);
-        console.log(parsedResult);
       }
 
       if (parsedResult.status.id === 11) {
@@ -106,12 +110,10 @@ export default function Layout() {
       } else {
         if (parsedResult.compile_output == null) {
           output = parsedResult.stdout;
-          //   setColor("text-red-600");
           toast.error("runtime error occured", { id: "running" });
         } else {
-            output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
+          output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
         }
-        setColor("text-green-400")
         toast.success("code ran successfully", { id: "running" });
       }
 
@@ -142,10 +144,34 @@ export default function Layout() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col transition-colors duration-300">
         <Disclosure as="nav" className="bg-gray-800">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between"></div>
+            <div className="flex h-16 items-center justify-end">
+              <button
+                onClick={toggleTheme}
+                className="bg-blue-500 text-white py-2 px-4 rounded flex items-center justify-center"
+                aria-label={`Change to ${
+                  theme === "dark" ? "light" : "dark"
+                } mode`}
+              >
+                <div className="max-w-6">
+                  {theme === "dark" ? (
+                    <MoonIcon
+                      className={`transition-transform duration-500 ${
+                        isAnimating ? "rotate-180" : ""
+                      }`}
+                    />
+                  ) : (
+                    <SunIcon
+                      className={`transition-transform duration-500 ${
+                        isAnimating ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              </button>
+            </div>
           </div>
         </Disclosure>
 

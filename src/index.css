@@ -112,3 +112,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-in-out;
+}
