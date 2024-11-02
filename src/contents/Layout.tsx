@@ -32,6 +32,7 @@ export default function Layout() {
     setTheme(theme === "dark" ? "light" : "dark");
     setTimeout(() => setIsAnimating(false), 100);
   };
+  const [color, setColor] = useState<string>("");
 
   const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
   const apiHost = import.meta.env.VITE_RAPIDAPI_HOST;
@@ -74,7 +75,6 @@ export default function Layout() {
         id: "running",
       });
       const response = await fetch(postUrl, postOptions);
-      console.log(response);
       if (response.status === 429) {
         toast.dismiss("running");
         throw new Error("request limit exceed ");
@@ -101,9 +101,11 @@ export default function Layout() {
 
       if (parsedResult.status.id === 11) {
         output = "Runtime Error" + `\n \n` + parsedResult.stderr;
+        setColor("text-red-600");
         toast.error("runtime error occured", { id: "running" });
       } else if (parsedResult.status.id != 3) {
         output = parsedResult.compile_output;
+        setColor("text-yellow-400");
         toast.error("failed code", { id: "running" });
       } else {
         if (parsedResult.compile_output == null) {
@@ -210,7 +212,7 @@ export default function Layout() {
                   <ResizableHandle />
                   <ResizablePanel defaultSize={75}>
                     <div className="flex h-full p-6">
-                      <Output output={output} />
+                      <Output output={output} color={color} />
                     </div>
                   </ResizablePanel>
                 </ResizablePanelGroup>
