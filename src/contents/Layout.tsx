@@ -114,6 +114,7 @@ export default function Layout() {
         } else {
           output = parsedResult.stdout + `\n \n` + parsedResult.compile_output;
         }
+        setColor("text-green-400")
         toast.success("code ran successfully", { id: "running" });
       }
 
